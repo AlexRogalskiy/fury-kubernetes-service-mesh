@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: e2e-kubernetes-1.15
+name: e2e-kubernetes-1.16
 
 platform:
   os: linux
@@ -8,14 +8,14 @@ platform:
 
 steps:
   - name: init
-    image: quay.io/sighup/e2e-testing-drone-plugin:v0.1.0-rc5
+    image: quay.io/sighup/e2e-testing-drone-plugin:v0.1.0-rc7
     pull: always
     volumes:
     - name: shared
       path: /shared
     depends_on: [ clone ]
     settings:
-      action: cluster-115
+      action: cluster-116
       instance_path: /shared
       aws_default_region:
         from_secret: aws_region
@@ -29,24 +29,26 @@ steps:
       event:
       - push
 
-  - name: kubectl
-    image: quay.io/sighup/kubectl:v1.15.6
+  - name: e2e
+    image: angelbarrera92/fury-e2e-testing:local
     pull: always
     volumes:
     - name: shared
       path: /shared
     depends_on: [ init ]
     commands:
-      - export KUBECONFIG=/shared/kube/kubeconfig-115
-      - kubectl get nodes
+      - export CLUSTER_NAME=116
+      - export INSTANCE_IP=$(cat /shared/machine/ip)
+      - export KUBECONFIG=/shared/kube/kubeconfig-116
+      - bats katalog/tests/istio-bats.sh
     when:
       event:
       - push
 
   - name: destroy
-    image: quay.io/sighup/e2e-testing-drone-plugin:v0.1.0-rc5
+    image: quay.io/sighup/e2e-testing-drone-plugin:v0.1.0-rc7
     pull: always
-    depends_on: [ kubectl ]
+    depends_on: [ e2e ]
     settings:
       action: destroy
       aws_default_region:
