@@ -153,7 +153,6 @@ info(){
 
 @test "test v2 for jason (again) in bookinfo demo application" {
   info
-  curl -s -L -c /tmp/test-cookie-${CLUSTER_NAME}.txt -d "username=jason" -d "passwd=jason" http://${INSTANCE_IP}:${CLUSTER_NAME}81/login
   test(){
     retry_counter=0
     max_retry=30
@@ -161,7 +160,9 @@ info(){
     while [[ ko -eq 1 ]]
     do
         if [ $retry_counter -ge $max_retry ]; then echo "Timeout waiting a condition"; curl -s ${INSTANCE_IP}:${CLUSTER_NAME}81/productpage >&2; return 1; fi
-        curl -s -b /tmp/test-cookie-${CLUSTER_NAME}.txt ${INSTANCE_IP}:${CLUSTER_NAME}81/productpage |grep -q 'color="black"'
+        rm -rf ${BATS_TMPDIR}/test-cookie-${CLUSTER_NAME}.txt
+        curl -s -L -c ${BATS_TMPDIR}/test-cookie-${CLUSTER_NAME}.txt -d "username=jason" -d "passwd=jason" http://${INSTANCE_IP}:${CLUSTER_NAME}81/login
+        curl -s -b ${BATS_TMPDIR}/test-cookie-${CLUSTER_NAME}.txt ${INSTANCE_IP}:${CLUSTER_NAME}81/productpage |grep -q 'color="black"'
         ko=$?
         sleep 3 && echo "# waiting..." $retry_counter >&3
         retry_counter=$((retry_counter + 1))
@@ -230,7 +231,6 @@ info(){
 
 @test "test v2 for jason (again and again) in bookinfo demo application" {
   info
-  curl -s -L -c /tmp/test-cookie-${CLUSTER_NAME}.txt -d "username=jason" -d "passwd=jason" http://${INSTANCE_IP}:${CLUSTER_NAME}81/login
   test(){
     retry_counter=0
     max_retry=30
@@ -238,7 +238,9 @@ info(){
     while [[ ko -eq 1 ]]
     do
         if [ $retry_counter -ge $max_retry ]; then echo "Timeout waiting a condition"; curl -s ${INSTANCE_IP}:${CLUSTER_NAME}81/productpage >&2; return 1; fi
-        curl -s -b /tmp/test-cookie-${CLUSTER_NAME}.txt ${INSTANCE_IP}:${CLUSTER_NAME}81/productpage |grep -q 'color="black"'
+        rm -rf ${BATS_TMPDIR}/test-cookie-${CLUSTER_NAME}.txt
+        curl -s -L -c ${BATS_TMPDIR}/test-cookie-${CLUSTER_NAME}.txt -d "username=jason" -d "passwd=jason" http://${INSTANCE_IP}:${CLUSTER_NAME}81/login
+        curl -s -b ${BATS_TMPDIR}/test-cookie-${CLUSTER_NAME}.txt ${INSTANCE_IP}:${CLUSTER_NAME}81/productpage |grep -q 'color="black"'
         ko=$?
         sleep 3 && echo "# waiting..." $retry_counter >&3
         retry_counter=$((retry_counter + 1))
